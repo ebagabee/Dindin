@@ -2,6 +2,9 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Link } from 'react-router-dom';
 import * as yup from 'yup';
+import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { IInputsValue } from '../interfaces/signUpInterface';
 
 const schema = yup.object({
     name: yup.string()
@@ -18,6 +21,8 @@ const schema = yup.object({
 });
 
 export function SignUp() {
+    const navigate = useNavigate();
+
     const {
         register,
         handleSubmit,
@@ -25,8 +30,21 @@ export function SignUp() {
             resolver: yupResolver(schema)
         });
 
-    function handleFormSignUp(data: any) {
-        console.log(data);
+    async function handleFormSignUp(inputsValue: IInputsValue) {
+        try {
+            const { data } = await api.post('/usuario', {
+                "nome": inputsValue.name,
+                "email": inputsValue.email,
+                "senha": inputsValue.password
+            });
+
+            if (data) {
+                alert('Cadastrado com sucesso');
+                navigate('/login');
+            }
+        } catch (error) {
+            alert('Ocorreu um erro');
+        }
     }
 
     return (
